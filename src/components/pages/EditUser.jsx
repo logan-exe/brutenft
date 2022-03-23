@@ -74,8 +74,7 @@ export default function EditUser() {
   const [blob, setBlob] = useState(null);
   const [inputImg, setInputImg] = useState("");
   const [progress, setProgress] = useState();
-
-  const [imageLoading, setImageLoading] = useState();
+  const [followers, setFollowers] = useState();
 
   const [changed, setChanged] = useState(false);
 
@@ -106,6 +105,8 @@ export default function EditUser() {
   useEffect(() => {
     const wallet_address = window.location.href.split("/")[4];
 
+    // setWalletAddress(walle)
+
     const getCurrentUser = async () => {
       const accounts = await window.ethereum.request({
         method: "eth_requestAccounts",
@@ -131,8 +132,8 @@ export default function EditUser() {
             })
               .then((response) => {
                 const a = response.data.user;
-                setFirstName(a.full_name.split(" ")[0]);
-                setLastName(a.full_name.split(" ")[1]);
+                setFirstName(a.full_name ? a.full_name.split(" ")[0] : "");
+                setLastName(a.full_name ? a.full_name.split(" ")[1] : "");
                 setEmail(a.email);
                 setBio(a.bio);
                 setFacebook(a.facebook);
@@ -144,6 +145,7 @@ export default function EditUser() {
                 setUserName(a.user_name);
                 setUserData(response.data.user);
                 setCoverImage(a.cover_image);
+                setProfileImage(a.profile_image);
                 setLoading(false);
               })
               .catch((e) => {
@@ -371,12 +373,16 @@ export default function EditUser() {
             id="profile_banner"
             className="jumbotron breadcumb no-bg"
             style={{
-              backgroundImage: `url(${coverImage})`,
+              backgroundImage: `url(${
+                coverImage !== undefined
+                  ? coverImage
+                  : "../../img/author_single/author_banner.jpg"
+              })`,
             }}
           >
             <div>
               <label
-                class="btn-main"
+                className="btn-main"
                 style={{
                   position: "absolute",
                   marginTop: "300px",
@@ -421,7 +427,11 @@ export default function EditUser() {
                       </div>
                     ) : (
                       <img
-                        src={userData.profile_image}
+                        src={
+                          profileImage
+                            ? profileImage
+                            : "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+                        }
                         alt=""
                         style={{
                           width: "200px",
@@ -454,7 +464,7 @@ export default function EditUser() {
                         </div>
                       </>
                     ) : (
-                      <label class="btn-main">
+                      <label className="btn-main">
                         <input
                           type="file"
                           style={{ display: "none" }}
@@ -477,13 +487,13 @@ export default function EditUser() {
                     >
                       <div className="_1-wrapper">
                         <div className="_2-wrapper">
-                          <label for="name" className="edit-profile-label">
+                          <label htmlFor="name" className="edit-profile-label">
                             First Name
                           </label>
                           <input
                             type="text"
                             className="edit-profile-field w-input"
-                            maxlength="256"
+                            maxLength="256"
                             name="name"
                             data-name="Name"
                             placeholder="Enter your first name"
@@ -499,13 +509,16 @@ export default function EditUser() {
                           />
                         </div>
                         <div className="_2-wrapper">
-                          <label for="name-2" className="edit-profile-label">
+                          <label
+                            htmlFor="name-2"
+                            className="edit-profile-label"
+                          >
                             Last Name
                           </label>
                           <input
                             type="text"
                             className="edit-profile-field w-input"
-                            maxlength="256"
+                            maxLength="256"
                             name="name-2"
                             data-name="Name 2"
                             placeholder="Enter your first name"
@@ -523,13 +536,16 @@ export default function EditUser() {
                       </div>
                       <div className="_1-wrapper">
                         <div className="_2-wrapper">
-                          <label for="Email-2" className="edit-profile-label">
+                          <label
+                            htmlFor="Email-2"
+                            className="edit-profile-label"
+                          >
                             Email Address
                           </label>
                           <input
                             type="email"
                             className="edit-profile-field w-input"
-                            maxlength="256"
+                            maxLength="256"
                             name="Email"
                             data-name="Email"
                             placeholder="Enter your email address"
@@ -546,7 +562,7 @@ export default function EditUser() {
                         </div>
                         <div className="_2-wrapper">
                           <label
-                            for="Phone-Number"
+                            htmlFor="Phone-Number"
                             className="edit-profile-label"
                           >
                             Phone number
@@ -554,7 +570,7 @@ export default function EditUser() {
                           <input
                             type="tel"
                             className="edit-profile-field w-input"
-                            maxlength="256"
+                            maxLength="256"
                             name="Phone-Number"
                             data-name="Phone Number"
                             placeholder="Enter your phone number"
@@ -572,13 +588,16 @@ export default function EditUser() {
                       </div>
                       <div className="_1-wrapper">
                         <div className="_2-wrapper">
-                          <label for="Username" className="edit-profile-label">
+                          <label
+                            htmlFor="Username"
+                            className="edit-profile-label"
+                          >
                             Username
                           </label>
                           <input
                             type="text"
                             className="edit-profile-field w-input"
-                            maxlength="256"
+                            maxLength="256"
                             name="Username"
                             data-name="Username"
                             placeholder="Choose an unique username"
@@ -596,12 +615,12 @@ export default function EditUser() {
                       </div>
                       <div className="_1-wrapper">
                         <div className="_2-wrapper">
-                          <label for="Bio" className="edit-profile-label">
+                          <label htmlFor="Bio" className="edit-profile-label">
                             Bio
                           </label>
                           <textarea
                             placeholder="Tell about yourself"
-                            maxlength="5000"
+                            maxLength="5000"
                             id="Bio"
                             name="Bio"
                             data-name="field"
@@ -618,13 +637,16 @@ export default function EditUser() {
                       </div>
                       <div className="_1-wrapper">
                         <div className="_2-wrapper">
-                          <label for="Facebook" className="edit-profile-label">
+                          <label
+                            htmlFor="Facebook"
+                            className="edit-profile-label"
+                          >
                             Facebook Profile
                           </label>
                           <input
                             type="text"
                             className="edit-profile-field w-input"
-                            maxlength="256"
+                            maxLength="256"
                             name="Facebook"
                             data-name="Facebook"
                             placeholder="Enter your Facebook profile"
@@ -639,13 +661,16 @@ export default function EditUser() {
                           />
                         </div>
                         <div className="_2-wrapper">
-                          <label for="Instagram" className="edit-profile-label">
+                          <label
+                            htmlFor="Instagram"
+                            className="edit-profile-label"
+                          >
                             Instagram Profile
                           </label>
                           <input
                             type="text"
                             className="edit-profile-field w-input"
-                            maxlength="256"
+                            maxLength="256"
                             name="Instagram"
                             data-name="Instagram"
                             placeholder="Enter your Instagram profile"
@@ -662,13 +687,16 @@ export default function EditUser() {
                       </div>
                       <div className="_1-wrapper">
                         <div className="_2-wrapper">
-                          <label for="Twitter" className="edit-profile-label">
+                          <label
+                            htmlFor="Twitter"
+                            className="edit-profile-label"
+                          >
                             Twitter Profile
                           </label>
                           <input
                             type="text"
                             className="edit-profile-field w-input"
-                            maxlength="256"
+                            maxLength="256"
                             name="Twitter"
                             data-name="Twitter"
                             placeholder="Enter your Twitter profile"
@@ -684,7 +712,7 @@ export default function EditUser() {
                         </div>
                         <div className="_2-wrapper">
                           <label
-                            for="Enter-your-LinkedIn-profile"
+                            htmlFor="Enter-your-LinkedIn-profile"
                             className="edit-profile-label"
                           >
                             Telegram
@@ -692,7 +720,7 @@ export default function EditUser() {
                           <input
                             type="text"
                             className="edit-profile-field w-input"
-                            maxlength="256"
+                            maxLength="256"
                             name="Enter-your-LinkedIn-profile"
                             data-name="Enter your LinkedIn profile"
                             placeholder="Enter your LinkedIn profile"

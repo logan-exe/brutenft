@@ -109,7 +109,7 @@ const App = () => {
           <Auction path="/Auction" />
           <Helpcenter path="/helpcenter" />
           <Colection path="/colection" />
-          <ItemDetail path="/ItemDetail" />
+          <ItemDetail path="/nft/:contract_address/:token_id" />
           <Profile path="/profile/:wallet_address" />
           <Wallet path="/wallet" />
           <Login path="/login" />
@@ -137,15 +137,6 @@ const App = () => {
       </PosedRouter>
       <ScrollToTopBtn />
     </div>
-    // <Router>
-    //   <div>
-    //     <Header />
-    //     <Routes>
-    //       <Route exact path="/" element={<Home />} />
-    //       <Route exact path="/profile/:wallet_address" element={<Profile />} />
-    //     </Routes>
-    //   </div>
-    // </Router>
   );
 };
 export default App;

@@ -65,6 +65,8 @@ const Wallet = () => {
         const signer = provider.getSigner();
         const signature = await signer.signMessage("Hello signing message");
 
+        console.log(baseURL, "this is baseURL");
+
         axios({
           method: "POST",
           url: baseURL + "/check_user",

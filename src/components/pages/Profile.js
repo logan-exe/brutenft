@@ -4,18 +4,14 @@ import ColumnZeroTwo from "../components/ColumnZeroTwo";
 import ColumnZeroThree from "../components/ColumnZeroThree";
 import Footer from "../components/footer";
 import { createGlobalStyle } from "styled-components";
-import { setLoading } from "../../actions";
-import { useSelector, useDispatch } from "react-redux";
-import { stopLoading } from "../../actions";
+import { useSelector } from "react-redux";
 import axios from "axios";
 import { baseURL } from "../../utils/baseURL";
 
-import ImageCropper from "../../utils/ImageCropper";
 import Spinner from "react-bootstrap/Spinner";
 import { ToastContainer, toast } from "react-toastify";
-import Resizer from "react-image-file-resizer";
-import { storage, db } from "../../firebase";
 import { navigate } from "@reach/router";
+import { Modal } from "react-bootstrap";
 
 const GlobalStyles = createGlobalStyle`
   header#myHeader.navbar.white {
@@ -33,6 +29,27 @@ const GlobalStyles = createGlobalStyle`
     }
   }
 `;
+
+function MyVerticallyCenteredModal(props) {
+  return (
+    <Modal
+      {...props}
+      size="sm"
+      aria-labelledby="contained-modal-title-vcenter"
+      centered
+    >
+      {/* <Modal.Header closeButton></Modal.Header> */}
+      <Modal.Body style={{ display: "flex", alignItems: "center" }}>
+        <center>
+          <Spinner animation="border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </Spinner>{" "}
+          {/* <ImageUpload /> */}
+        </center>
+      </Modal.Body>
+    </Modal>
+  );
+}
 
 let imgInput = document.getElementById("image-input");
 imgInput?.addEventListener("change", function (e) {
@@ -61,23 +78,23 @@ imgInput?.addEventListener("change", function (e) {
   }
 });
 
-const resizeFile = (file) =>
-  new Promise((resolve) => {
-    Resizer.imageFileResizer(
-      file,
-      200,
-      200,
-      "JPEG",
-      100,
-      0,
-      (uri) => {
-        resolve(uri);
-      },
-      "file",
-      200,
-      200
-    );
-  });
+// const resizeFile = (file) =>
+//   new Promise((resolve) => {
+//     Resizer.imageFileResizer(
+//       file,
+//       200,
+//       200,
+//       "JPEG",
+//       100,
+//       0,
+//       (uri) => {
+//         resolve(uri);
+//       },
+//       "file",
+//       200,
+//       200
+//     );
+//   });
 
 const Profile = function () {
   const [openMenu, setOpenMenu] = React.useState(true);
@@ -86,6 +103,7 @@ const Profile = function () {
   const [walletAddress, setWalletAddress] = useState("");
   const [userData, setUserData] = useState("");
   const [isOwner, setIsOwner] = useState(false);
+  const [modalShow, setModalShow] = useState(false);
 
   const [loading, setLoading] = useState(true);
 
@@ -96,10 +114,13 @@ const Profile = function () {
 
   const [blob, setBlob] = useState(null);
   const [inputImg, setInputImg] = useState("");
+  const [following, setFollowing] = useState(false);
+  const [nftsCreated, setNftsCreated] = useState(false);
 
   //user states
 
   const loggedInWallet = useSelector((state) => state.setAddress);
+  const [loggedInUserDetails, setLoggedInUserDetails] = useState();
 
   // const navigate = useNavigate();
 
@@ -140,6 +161,18 @@ const Profile = function () {
       theme: "dark",
     });
 
+  const notifyError = (message) =>
+    toast.error(message, {
+      position: "bottom-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    });
+
   const getBlob = (blob) => {
     // pass blob up from the ImageCropper component
     setBlob(blob);
@@ -165,31 +198,206 @@ const Profile = function () {
 
   useEffect(() => {
     const wallet_address = window.location.href.split("/")[4];
+    const getCurrentUser = async () => {
+      const accounts = await window.ethereum
+        .request({
+          method: "eth_requestAccounts",
+        })
+        .catch((err) => {
+          localStorage.clear();
+        });
+      return accounts[0];
+    };
 
+    if (localStorage.getItem("wallet_address")) {
+      getCurrentUser()
+        .then((res1) => {
+          if (res1 !== localStorage.getItem("wallet_address")) {
+            alert("Some error occurred. Reconnect Wallet");
+            navigate("/wallet");
+            console.log("accounts mismatch");
+          } else {
+            axios({
+              method: "POST",
+              url: baseURL + "/get_user_data",
+              data: {
+                walletAddress: res1,
+              },
+            })
+              .then((res) => {
+                if (res.data.message === "success") {
+                  setLoggedInUserDetails(res.data.user);
+                  axios({
+                    method: "POST",
+                    url: baseURL + "/get_user_data",
+                    data: {
+                      walletAddress: wallet_address,
+                    },
+                    headers: {
+                      Authorization: `Bearer ${localStorage.getItem(
+                        "signature"
+                      )}`,
+                    },
+                  })
+                    .then(async (response) => {
+                      if (response.data.message === "success") {
+                        const found = await response.data.user.followers.some(
+                          (el) => {
+                            return el.follower_info.wallet_address === res1;
+                          }
+                        );
+                        if (found) {
+                          setFollowing(true);
+                        }
+
+                        setNftsCreated(response.data.nftsCreated);
+                        setUserData(response.data.user);
+
+                        setLoading(false);
+                      }
+                    })
+                    .catch((err) => {
+                      navigate("/");
+                      setLoading(false);
+                    });
+                }
+              })
+              .catch((err) => {
+                navigate("/");
+                setLoading(false);
+              });
+          }
+        })
+        .catch((err) => {});
+    } else {
+      axios({
+        method: "POST",
+        url: baseURL + "/get_user_data",
+        data: {
+          walletAddress: wallet_address,
+        },
+      })
+        .then((response) => {
+          if (response.data.message === "success") {
+            setUserData(response.data.user);
+
+            setLoading(false);
+          }
+        })
+        .catch((err) => {
+          navigate("/");
+          setLoading(false);
+        });
+    }
     setWalletAddress(wallet_address);
-    console.log(walletAddress, "this is it");
+  }, []);
+
+  const createFollower = async () => {
+    setModalShow(true);
+    if (!loggedInUserDetails) {
+      notifyError("Connect wallet to continue");
+      setModalShow(false);
+      return;
+    }
     axios({
       method: "POST",
-      url: baseURL + "/get_user_data",
+      url: baseURL + "/create_follower",
       data: {
-        walletAddress: wallet_address,
+        followingId: userData._id,
+        followerId: loggedInUserDetails._id,
       },
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("signature")}`,
+    }).then((res) => {
+      console.log(res.data.data, "this is hi");
+      if (res.data.message === "success") {
+        axios({
+          method: "POST",
+          url: baseURL + "/get_user_data",
+          data: {
+            walletAddress: res.data.data.wallet_address,
+          },
+        })
+          .then(async (response) => {
+            console.log(response.data, "this is response.data");
+            if (response.data.message === "success") {
+              const found = await response.data.user.followers.some((el) => {
+                console.log(
+                  el.follower_info.wallet_address,
+                  "each",
+                  walletAddress
+                );
+                return (
+                  el.follower_info.wallet_address ===
+                  loggedInUserDetails.wallet_address
+                );
+              });
+              if (found) {
+                console.log("setting modal show");
+                setFollowing(true);
+              }
+              setUserData(response.data.user);
+              setModalShow(false);
+            }
+          })
+          .catch((err) => {
+            navigate("/");
+            setLoading(false);
+          });
+      }
+    });
+  };
+
+  const removeFollower = async () => {
+    setModalShow(true);
+    if (!loggedInUserDetails) {
+      alert("Connect wallet to follow");
+      return;
+    }
+    axios({
+      method: "POST",
+      url: baseURL + "/remove_follower",
+      data: {
+        followingId: userData._id,
+        followerId: loggedInUserDetails._id,
       },
-    })
-      .then((res) => {
-        if (res.data.message === "success") {
-          console.log(res.data.user);
-          setUserData(res.data.user);
-          setLoading(false);
-        }
-      })
-      .catch((err) => {
-        navigate("/");
-        setLoading(false);
-      });
-  }, []);
+    }).then((res) => {
+      if (res.data.message === "success") {
+        axios({
+          method: "POST",
+          url: baseURL + "/get_user_data",
+          data: {
+            walletAddress: walletAddress,
+          },
+        })
+          .then(async (response) => {
+            // return;
+            if (response.data.message === "success") {
+              let found = false;
+              if (response.data.user.followers.length !== 0) {
+                found = await response.data.user.followers?.some((el) => {
+                  return (
+                    el.follower_info?.wallet_address ===
+                    loggedInUserDetails.wallet_address
+                  );
+                });
+              }
+
+              if (found) {
+                setFollowing(true);
+              } else {
+                setFollowing(false);
+              }
+
+              setUserData(response.data.user);
+              setModalShow(false);
+            }
+          })
+          .catch((err) => {
+            navigate("/");
+            setLoading(false);
+          });
+      }
+    });
+  };
 
   return (
     <div>
@@ -211,11 +419,19 @@ const Profile = function () {
         </div>
       ) : (
         <>
+          <MyVerticallyCenteredModal
+            show={modalShow}
+            onHide={() => setModalShow(false)}
+          />
           <section
             id="profile_banner"
             className="jumbotron breadcumb no-bg"
             style={{
-              backgroundImage: `url(${userData.cover_image})`,
+              backgroundImage: `url(${
+                userData.cover_image
+                  ? userData.cover_image
+                  : "https://media-exp1.licdn.com/dms/image/C5616AQHqOHv6BAlTdQ/profile-displaybackgroundimage-shrink_350_1400/0/1635404387380?e=1652918400&v=beta&t=eanwxFBPAeIMCUUv2J_5_DjI_A_I2rL24fBUAIERogk"
+              })`,
             }}
           >
             <div className="mainbreadcumb"></div>
@@ -231,16 +447,27 @@ const Profile = function () {
                         "Loading..."
                       ) : (
                         <img
-                          src={userData.profile_image}
+                          src={
+                            userData.profile_image !== ""
+                              ? userData.profile_image
+                              : "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
+                          }
                           alt=""
                           style={{ width: "150px", height: "150px" }}
                         />
                       )}
 
-                      <i className="fa fa-check"></i>
+                      {userData.is_verified ? (
+                        <i className="fa fa-check"></i>
+                      ) : (
+                        ""
+                      )}
+
                       <div className="profile_name">
                         <h4>
-                          {userData.full_name}
+                          {userData.full_name
+                            ? userData.full_name
+                            : "unnamed user"}
                           {userData.wallet_address === loggedInWallet ? (
                             <a href={`/profile/${walletAddress}/editprofile`}>
                               <svg
@@ -270,7 +497,10 @@ const Profile = function () {
                           )}
 
                           <span className="profile_username">
-                            {"@" + userData.user_name}
+                            @
+                            {userData.user_name === ""
+                              ? "unnamed"
+                              : userData.user_name}
                           </span>
                           <span id="wallet" className="profile_wallet">
                             {userData.wallet_address}
@@ -294,11 +524,37 @@ const Profile = function () {
 
                   <div className="profile_follow de-flex">
                     <div className="de-flex-col">
-                      <div className="profile_follower">500 followers</div>
+                      <div className="profile_follower">
+                        {userData?.followers ? userData.followers?.length : 0}{" "}
+                        followers
+                      </div>
+                      <div className="profile_follower">
+                        {userData?.following ? userData.following?.length : 0}{" "}
+                        following
+                      </div>
                     </div>
-                    <div className="de-flex-col">
-                      <span className="btn-main">Follow</span>
-                    </div>
+                    {walletAddress !== loggedInUserDetails?.wallet_address ? (
+                      <>
+                        {" "}
+                        {following ? (
+                          <div
+                            className="de-flex-col"
+                            onClick={() => removeFollower()}
+                          >
+                            <span className="btn-main">Unfollow</span>
+                          </div>
+                        ) : (
+                          <div
+                            className="de-flex-col"
+                            onClick={() => createFollower()}
+                          >
+                            <span className="btn-main">Follow</span>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      ""
+                    )}
                   </div>
                 </div>
               </div>
@@ -311,15 +567,15 @@ const Profile = function () {
                 <div className="items_filter">
                   <ul className="de_nav text-left">
                     <li id="Mainbtn" className="active">
-                      <span onClick={handleBtnClick}>On Sale</span>
+                      <span onClick={handleBtnClick}>Created</span>
                     </li>
                     <li id="Mainbtn1" className="">
-                      <span onClick={handleBtnClick1}>Created</span>
+                      <span onClick={handleBtnClick1}>Collected</span>
                     </li>
                     <li id="Mainbtn2" className="">
-                      <span onClick={handleBtnClick2}>Collected</span>
+                      <span onClick={handleBtnClick2}>History</span>
                     </li>
-                    <li id="Mainbtn2" className="">
+                    {/* <li id="Mainbtn2" className="">
                       <span>Offers recieved</span>
                     </li>
                     <li id="Mainbtn2" className="">
@@ -327,7 +583,7 @@ const Profile = function () {
                     </li>
                     <li id="Mainbtn2" className="">
                       <span>Offers Made</span>
-                    </li>
+                    </li> */}
                   </ul>
                 </div>
               </div>
@@ -335,17 +591,17 @@ const Profile = function () {
             </div>
             {openMenu && (
               <div id="zero1" className="onStep fadeIn">
-                <ColumnZero />
+                <ColumnZero data={nftsCreated} />
               </div>
             )}
             {openMenu1 && (
               <div id="zero2" className="onStep fadeIn">
-                <ColumnZeroTwo />
+                <ColumnZeroTwo userId={userData._id} />
               </div>
             )}
             {openMenu2 && (
               <div id="zero3" className="onStep fadeIn">
-                <ColumnZeroThree />
+                <ColumnZeroThree userId={userData._id} />
               </div>
             )}
           </section>

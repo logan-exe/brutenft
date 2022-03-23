@@ -17,6 +17,7 @@ import { tradeAbi } from "../../utils/tradeAbi";
 import Form from "react-bootstrap/Form";
 import { Checkmark } from "../components/Checkmark";
 import { storage } from "../../firebase";
+import ReactPlayer from "react-player";
 
 const GlobalStyles = createGlobalStyle`
   header#myHeader.navbar.white {
@@ -58,6 +59,7 @@ export default function CreatePage() {
   const [onAuction, setOnAuction] = useState(false);
 
   const [progress, setProgress] = useState();
+  const [saleType, setSaleType] = useState("fixed");
 
   const [mintingLoader, setMintingLoader] = useState(true);
   const [approveLoader, setApproveLoader] = useState(true);
@@ -73,6 +75,7 @@ export default function CreatePage() {
     document.getElementById("btn1").classList.add("active");
     document.getElementById("btn2").classList.remove("active");
     document.getElementById("btn3").classList.remove("active");
+    setSaleType("fixed");
   };
   const handleShow1 = () => {
     document.getElementById("tab_opt_1").classList.add("hide");
@@ -81,12 +84,14 @@ export default function CreatePage() {
     document.getElementById("btn1").classList.remove("active");
     document.getElementById("btn2").classList.add("active");
     document.getElementById("btn3").classList.remove("active");
+    setSaleType("auction");
   };
   const handleShow2 = () => {
-    document.getElementById("tab_opt_1").classList.add("show");
+    // document.getElementById("tab_opt_1").classList.add("show");
     document.getElementById("btn1").classList.remove("active");
     document.getElementById("btn2").classList.remove("active");
     document.getElementById("btn3").classList.add("active");
+    setSaleType("onlybids");
   };
 
   const unlockClick = () => {
@@ -196,37 +201,37 @@ export default function CreatePage() {
     }
   };
 
-  const checkApprovalStatus = async () => {
-    console.log("inisde set approval for All");
-    if (window.ethereum) {
-      // const web3 = new Web3(window.ethereum);
-      const accounts = await window.ethereum.request({
-        method: "eth_requestAccounts",
-      });
+  // const checkApprovalStatus = async () => {
+  //   console.log("inisde set approval for All");
+  //   if (window.ethereum) {
+  //     // const web3 = new Web3(window.ethereum);
+  //     const accounts = await window.ethereum.request({
+  //       method: "eth_requestAccounts",
+  //     });
 
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      await provider.send("eth_requestAccounts", []);
-      const signer = provider.getSigner();
-      const contract = new ethers.Contract(
-        "0x5c1f1dDDDBde175CB668DcFFEa1F452273fd918f",
-        contractAbi,
-        signer
-      );
+  //     const provider = new ethers.providers.Web3Provider(window.ethereum);
+  //     await provider.send("eth_requestAccounts", []);
+  //     const signer = provider.getSigner();
+  //     const contract = new ethers.Contract(
+  //       "0x5c1f1dDDDBde175CB668DcFFEa1F452273fd918f",
+  //       contractAbi,
+  //       signer
+  //     );
 
-      const tradeApprove = await contract.isApprovedForAll(
-        accounts[0],
-        "0x49c0e6764BbbD3564bc2070238b35115E00d9ff1"
-      );
+  //     const tradeApprove = await contract.isApprovedForAll(
+  //       accounts[0],
+  //       "0x49c0e6764BbbD3564bc2070238b35115E00d9ff1"
+  //     );
 
-      console.log(tradeApprove, "this is tradeApprove");
+  //     console.log(tradeApprove, "this is tradeApprove");
 
-      // const tradeApproveTx = await tradeApprove.wait();
+  //     // const tradeApproveTx = await tradeApprove.wait();
 
-      // return tradeApproveTx;
-    } else {
-      alert("some error occurred in setApproval");
-    }
-  };
+  //     // return tradeApproveTx;
+  //   } else {
+  //     alert("some error occurred in setApproval");
+  //   }
+  // };
 
   const createListing = async (newTokenId) => {
     if (window.ethereum) {
@@ -297,12 +302,6 @@ export default function CreatePage() {
     );
 
     return localImageUrl;
-  };
-
-  const createImageUrl = async () => {
-    const newImgUrl = await uploadToFireBase("5");
-
-    console.log(newImgUrl);
   };
 
   const createNft = async () => {
@@ -460,21 +459,22 @@ export default function CreatePage() {
                             nftType: nftType,
                             creatorImage: userData.profile_image,
                             ownerImage: userData.profile_image,
-                            ownedBy: accounts[0],
-                            createdBy: accounts[0],
+                            ownedById: userData._id,
+                            createdById: userData._id,
                             imageIpfs: myNftImage,
+                            contractAddress:
+                              "0x5c1f1dDDDBde175CB668DcFFEa1F452273fd918f",
                             metadataIpfs: metaDataURI,
                             imageUrl: url,
                             royalty: royalty,
                             title: nftName,
                             description: description,
                             onAuction: onAuction,
-                            auctionStartDate: startDate,
-                            auctionEndDate: endDate,
-                            auctionStartTime: "",
-                            auctionEndTime: "",
                             txHash: nft.transactionHash,
+                            instantSale: instantSale,
                             music: "",
+                            initialPrice: initialPrice,
+                            coverImage: "",
                           },
                         })
                           .then((res) => {
@@ -616,7 +616,9 @@ export default function CreatePage() {
             {minted ? (
               <div style={{ color: "black" }}>
                 <a
-                  href={`/0x5c1f1dDDDBde175CB668DcFFEa1F452273fd918f/${tokenId}`}
+                  href={`/nft/0x5c1f1ddddbde175cb668dcffea1f452273fd918f/${tokenId}`}
+                  // target="_blank"
+                  // rel="noreferrer"
                 >
                   Click Here to view your NFT
                 </a>
@@ -662,9 +664,10 @@ export default function CreatePage() {
                               URL.createObjectURL(e.target.files[0])
                             );
                             setFile(e.target.files[0]);
+                            console.log(e.target.files[0]);
                           }}
                         />
-                        Upload Image
+                        Upload Asset
                       </label>
                     </div>
                   </div>
@@ -690,112 +693,120 @@ export default function CreatePage() {
                         </span>
                       </li>
                     </ul>
-
-                    <div className="de_tab_content pt-3">
-                      <div id="tab_opt_1">
-                        <h5>Price</h5>
-                        <input
-                          type="number"
-                          name="item_price"
-                          id="item_price"
-                          className="form-control"
-                          placeholder="enter price (MATIC)"
-                          onChange={(e) => setIntialPrice(e.target.value)}
-                        />
-                      </div>
-
-                      <div id="tab_opt_2" className="hide">
-                        <h5>Minimum bid</h5>
-                        <input
-                          type="text"
-                          name="item_price_bid"
-                          id="item_price_bid"
-                          className="form-control"
-                          placeholder="enter minimum bid"
-                        />
-
-                        <div className="spacer-20"></div>
-
-                        <div className="row">
-                          <div className="col-md-6">
-                            <h5>Starting date</h5>
-                            <input
-                              type="date"
-                              name="bid_starting_date"
-                              id="bid_starting_date"
-                              className="form-control"
-                              min="1997-01-01"
-                            />
-                          </div>
-                          <div className="col-md-6">
-                            <h5>Expiration date</h5>
-                            <input
-                              type="date"
-                              name="bid_expiration_date"
-                              id="bid_expiration_date"
-                              className="form-control"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div id="tab_opt_3"></div>
-                    </div>
                   </div>
 
                   <div className="spacer-20"></div>
 
-                  <div className="switch-with-title">
-                    <h5>
-                      <i className="fa fa- fa-unlock-alt id-color-2 mr10"></i>
-                      Instant Sale
-                    </h5>
-                    <div className="de-switch">
-                      <input
-                        type="checkbox"
-                        id="switch-unlock"
-                        className="checkbox"
-                      />
-                      {instantSale ? (
-                        <label
-                          htmlFor="switch-unlock"
-                          onClick={unlockHide}
-                        ></label>
-                      ) : (
-                        <label
-                          htmlFor="switch-unlock"
-                          onClick={unlockClick}
-                        ></label>
-                      )}
+                  {saleType === "fixed" ? (
+                    <div className="switch-with-title">
+                      <h5>
+                        <i className="fa fa- fa-unlock-alt id-color-2 mr10"></i>
+                        Instant Sale
+                      </h5>
+                      <div className="de-switch">
+                        <input
+                          type="checkbox"
+                          id="switch-unlock"
+                          className="checkbox"
+                        />
+                        {instantSale ? (
+                          <label
+                            htmlFor="switch-unlock"
+                            onClick={unlockHide}
+                          ></label>
+                        ) : (
+                          <label
+                            htmlFor="switch-unlock"
+                            onClick={unlockClick}
+                          ></label>
+                        )}
+                      </div>
+                      <div className="clearfix"></div>
+                      <p className="p-info pb-3">
+                        NFT be sold directly on a fixed price without owner
+                        acceptance if on sale.
+                      </p>
                     </div>
-                    <div className="clearfix"></div>
-                    <p className="p-info pb-3">
-                      Will be sold directly on a fixed price without owner
-                      acceptance (Only available on fixed price sale).
-                    </p>
-                  </div>
+                  ) : (
+                    ""
+                  )}
 
-                  <div className="switch-with-title">
-                    <h5>
-                      <i className="fa fa- fa-unlock-alt id-color-2 mr10"></i>
-                      Put on Sale
-                    </h5>
-                    <div className="de-switch">
-                      <Form.Check
-                        type="switch"
-                        id="custom-switch"
-                        // value={true}
-                        onChange={() => {
-                          console.log(onSale);
-                          setOnSale(!onSale);
-                        }}
+                  {saleType === "fixed" ? (
+                    <div className="switch-with-title">
+                      <h5>
+                        <i className="fa fa- fa-unlock-alt id-color-2 mr10"></i>
+                        Put on Sale
+                      </h5>
+                      <div className="de-switch">
+                        <Form.Check
+                          type="switch"
+                          id="custom-switch"
+                          // value={true}
+                          onChange={() => {
+                            console.log(onSale);
+                            setOnSale(!onSale);
+                          }}
+                        />
+                      </div>
+                      <div className="clearfix"></div>
+                      <p className="p-info pb-3">
+                        NFT will be available for buyers to Make offers and
+                        Purchase after owner acceptance if on sale.
+                      </p>
+                    </div>
+                  ) : (
+                    ""
+                  )}
+
+                  <div className="de_tab_content pt-3">
+                    <div id="tab_opt_1">
+                      <h5>Price</h5>
+                      <input
+                        type="number"
+                        name="item_price"
+                        id="item_price"
+                        className="form-control"
+                        placeholder="enter price (MATIC)"
+                        onChange={(e) => setIntialPrice(e.target.value)}
                       />
                     </div>
-                    <div className="clearfix"></div>
-                    <p className="p-info pb-3">
-                      Will be sold directly on a fixed price without owner
-                      acceptance (Only available on fixed price sale).
-                    </p>
+
+                    <div id="tab_opt_2" className="hide">
+                      <h5>Minimum bid</h5>
+                      <input
+                        type="text"
+                        name="item_price_bid"
+                        id="item_price_bid"
+                        className="form-control"
+                        placeholder="enter minimum bid"
+                      />
+
+                      <div className="spacer-20"></div>
+
+                      <div className="row">
+                        <div className="col-md-6">
+                          <h5>Starting date</h5>
+                          <input
+                            type="date"
+                            name="bid_starting_date"
+                            id="bid_starting_date"
+                            className="form-control"
+                            min="1997-01-01"
+                          />
+                        </div>
+                        <div className="col-md-6">
+                          <h5>Expiration date</h5>
+                          <input
+                            type="date"
+                            name="bid_expiration_date"
+                            id="bid_expiration_date"
+                            className="form-control"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div id="tab_opt_3"></div>
                   </div>
 
                   <h5>
@@ -884,7 +895,11 @@ export default function CreatePage() {
                     <span>
                       <img
                         className="lazy"
-                        src={userData.profile_image}
+                        src={
+                          userData.profile_image
+                            ? userData.profile_image
+                            : "https://imageio.forbes.com/specials-images/imageserve/6170e01f8d7639b95a7f2eeb/Sotheby-s-NFT-Natively-Digital-1-2-sale-Bored-Ape-Yacht-Club--8817-by-Yuga-Labs/0x0.png?fit=bounds&format=png&width=960"
+                        }
                         alt=""
                       />
                       <i className="fa fa-check"></i>
@@ -892,16 +907,25 @@ export default function CreatePage() {
                   </div>
                   <div className="nft__item_wrap">
                     <span>
-                      <img
-                        src={
-                          file
-                            ? previewUrl
-                            : "../img/collections/coll-item-3.jpg"
-                        }
-                        id="get_file_2"
-                        className="lazy nft__item_preview"
-                        alt=""
-                      />
+                      {file?.type === "video/mp4" ? (
+                        <ReactPlayer
+                          width="100%"
+                          height="100%"
+                          url={file ? previewUrl : ""}
+                          controls={true}
+                        />
+                      ) : (
+                        <img
+                          src={
+                            file
+                              ? previewUrl
+                              : "../img/collections/coll-item-3.jpg"
+                          }
+                          id="get_file_2"
+                          className="lazy nft__item_preview"
+                          alt=""
+                        />
+                      )}
                     </span>
                   </div>
                   <div className="nft__item_info">
@@ -923,7 +947,7 @@ export default function CreatePage() {
                     </div>
                     <div className="nft__item_like">
                       <i className="fa fa-heart"></i>
-                      <span>50</span>
+                      <span>Likes</span>
                     </div>
                   </div>
                 </div>

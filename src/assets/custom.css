@@ -1,0 +1,299 @@
+@media (max-width: 529px) {
+  .owner_display_ {
+    margin-bottom: 20px !important;
+  }
+
+  .nft-buttons {
+    flex-wrap: wrap;
+    width: 100% !important;
+  }
+
+  .share-modal-body {
+    flex-wrap: wrap;
+
+    align-items: center;
+  }
+
+  .history-table {
+    font-family: Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 150%;
+  }
+}
+.owner_display_ {
+  margin-right: 16px;
+}
+
+.nft-buttons > button {
+  background-color: #8364e21a;
+  padding: 8px 16px 8px 16px;
+  margin-top: 20px;
+  border-radius: 4px;
+}
+
+.nft-buttons > button:hover {
+  background-color: #8364e2;
+  color: #fff;
+}
+
+.copy-button {
+  /* border: 1px solid black; */
+  padding: 8px 16px 8px 16px;
+  background-color: #8364e21a;
+}
+
+.copy-button:hover {
+  background-color: #8364e2;
+  color: #fff;
+}
+
+.share-modal-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-price {
+  display: inline-block;
+
+  width: auto;
+  height: 38px;
+  min-width: 100px;
+  font-weight: bold !important;
+
+  background-color: #8364e2;
+  -webkit-border-radius: 3px 4px 4px 3px;
+  -moz-border-radius: 3px 4px 4px 3px;
+  border-radius: 3px 4px 4px 3px;
+
+  border-left: 1px solid #8364e2;
+
+  /* This makes room for the triangle */
+  margin-left: 19px;
+
+  position: relative;
+
+  color: white;
+  font-weight: 300;
+  font-size: 12px;
+  line-height: 38px;
+
+  padding: 0 10px 0 10px;
+}
+
+/* Makes the triangle */
+.card-price:before {
+  content: "";
+  position: absolute;
+  display: block;
+  left: -19px;
+  width: 0;
+  height: 0;
+  border-top: 19px solid transparent;
+  border-bottom: 19px solid transparent;
+  border-right: 19px solid #8364e2;
+}
+
+/* Makes the circle */
+.card-price:after {
+  content: "";
+  background-color: white;
+  border-radius: 50%;
+  width: 4px;
+  height: 4px;
+  display: block;
+  position: absolute;
+  left: -9px;
+  top: 17px;
+}
+
+.history-wrapper {
+  height: 170px;
+  overflow-y: scroll;
+}
+
+.history-table {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  min-width: 100%;
+}
+
+.history-table td,
+.history-table th {
+  /* border: 1px solid #ddd; */
+  padding: 8px;
+}
+
+.history-table tr:nth-child(even) {
+  background-color: #8364e21a;
+}
+
+.history-table tr:hover {
+  background-color: rgba(131, 100, 226, 0.2);
+  cursor: pointer;
+}
+
+.history-table th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #8364e2;
+  color: white;
+}
+
+.div-block {
+  width: 100%;
+  height: 46px;
+  background-color: #fff;
+}
+
+.icons-container {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  width: 46px;
+  height: 46px;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+  border-right: 1px none #e2e2e2;
+  cursor: pointer;
+}
+
+.icons-container:hover {
+  box-shadow: 2px 2px 3px 0 rgba(0, 0, 0, 0.05);
+  background-color: #8364e21a;
+}
+
+.icons-container.r {
+  border-right: 1px solid #e2e2e2;
+}
+
+.icons-wrapper {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  max-width: 184px;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #e2e2e2;
+  border-radius: 4px;
+}
+
+.icon {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  width: 24px;
+  height: 24px;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.more-wrapper {
+  position: absolute;
+  width: 184px;
+  margin-top: 188px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border: 1px solid #e2e2e2;
+  border-radius: 4px;
+  background-color: #fff;
+  margin-right: 134px;
+}
+
+.more-item {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  height: 40px;
+  padding: 8px 16px;
+  -webkit-box-pack: start;
+  -webkit-justify-content: flex-start;
+  -ms-flex-pack: start;
+  justify-content: flex-start;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.more-item:hover {
+  background-color: #f5f5f5;
+}
+
+.more-tet {
+  font-family: "DM Sans", sans-serif;
+  color: #727272;
+  font-weight: 500;
+}
+
+.more-item-icon-container {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.more-item-icon {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.price-tag-wrapper {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin-top: 24px;
+  margin-right: 24px;
+}
+
+.card-price-1 {
+  background: #8364e2;
+  padding: 4px;
+  min-width: 100px;
+  color: white;
+  font-weight: bold;
+  border-radius: 4px;
+}
