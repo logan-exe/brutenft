@@ -1,6 +1,7 @@
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
 import styled from "styled-components";
 import Clock from "./Clock";
+import noimage from "./noimage.jpeg";
 
 const Outer = styled.div`
   display: flex;
@@ -13,6 +14,19 @@ const Outer = styled.div`
 
 const ColumnZero = (props) => {
   console.log(props.data, "tjis is the datas");
+  const [imageHeight, setImageHeight] = useState(0);
+  const [profileLoaded, setProfileLoaded] = useState(false);
+
+  const onImgLoad = ({ target: img }) => {
+    let currentHeight = imageHeight;
+    if (currentHeight < img.offsetHeight) {
+      // this.setState({
+      //     height: img.offsetHeight
+      // })
+
+      setImageHeight(img.offsetHeight);
+    }
+  };
   return (
     <div className="row">
       {props.data.length !== 0 ? (
@@ -21,13 +35,19 @@ const ColumnZero = (props) => {
             key={index}
             className="d-item col-lg-3 col-md-6 col-sm-6 col-xs-12"
           >
-            <div className="nft__item">
+            <div
+              className="nft__item"
+              style={{ marginRight: "0px", marginLeft: "0px" }}
+            >
               {nft.deadline && (
                 <div className="de_countdown">
                   <Clock deadline={nft.deadline} />
                 </div>
               )}
-              <div className="author_list_pp">
+              <div
+                className={profileLoaded ? "author_list_pp" : ""}
+                style={{ height: "50px" }}
+              >
                 <span
                   onClick={() =>
                     window.open(
@@ -37,21 +57,36 @@ const ColumnZero = (props) => {
                   }
                 >
                   <img
-                    className="lazy"
+                    className={profileLoaded ? "lazy" : ""}
                     src={nft.owned_by.profile_image}
-                    alt=""
+                    alt="loading"
+                    onLoad={() => setProfileLoaded(true)}
                   />
-                  {nft.owned_by.is_verified ? (
+
+                  {/* {!profileLoaded ? (
+                    <img className="lazy" src={noimage} alt="" />
+                  ) : (
+                    ""
+                  )} */}
+
+                  {nft.owned_by.is_verified && profileLoaded ? (
                     <i className="fa fa-check"></i>
                   ) : (
                     ""
                   )}
                 </span>
               </div>
+
               <div
                 className="nft__item_wrap"
-                // style={{ height: `${this.state.height}px` }}
-                style={{ height: "280px" }}
+                style={{ height: `${imageHeight}px`, cursor: "pointer" }}
+                onLoad={onImgLoad}
+                onClick={() =>
+                  window.open(
+                    `/nft/${nft.contract_address}/${nft.token_id}`,
+                    "_self"
+                  )
+                }
               >
                 <Outer>
                   <span>
@@ -74,10 +109,15 @@ const ColumnZero = (props) => {
                 >
                   <h4>{nft.title}</h4>
                 </span>
-                <div className="nft__item_price">
-                  {nft.initial_price}
-                  <span>{nft.bid}</span>
-                </div>
+                {nft.on_sale ? (
+                  <div className="nft__item_price">
+                    {nft.initial_price + " MATIC"}
+                    {/* lorem ipsum dolor hello world how are you */}
+                  </div>
+                ) : (
+                  <div className="nft__item_price">NOT FOR SALE</div>
+                )}
+
                 <div className="nft__item_action">
                   <span onClick={() => window.open(nft.bidLink, "_self")}>
                     {nft.on_sale ? "On Sale" : "Make an offer"}

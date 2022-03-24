@@ -59,7 +59,7 @@ export default function CreatePage() {
   const [onAuction, setOnAuction] = useState(false);
 
   const [progress, setProgress] = useState();
-  const [saleType, setSaleType] = useState("fixed");
+  const [saleType, setSaleType] = useState("none");
 
   const [mintingLoader, setMintingLoader] = useState(true);
   const [approveLoader, setApproveLoader] = useState(true);
@@ -76,6 +76,9 @@ export default function CreatePage() {
     document.getElementById("btn2").classList.remove("active");
     document.getElementById("btn3").classList.remove("active");
     setSaleType("fixed");
+    setOnSale(true);
+    setInstantSale(true);
+    setOnAuction(false);
   };
   const handleShow1 = () => {
     document.getElementById("tab_opt_1").classList.add("hide");
@@ -85,13 +88,19 @@ export default function CreatePage() {
     document.getElementById("btn2").classList.add("active");
     document.getElementById("btn3").classList.remove("active");
     setSaleType("auction");
+    setOnSale(false);
+    setInstantSale(false);
+    setOnAuction(true);
   };
   const handleShow2 = () => {
     // document.getElementById("tab_opt_1").classList.add("show");
     document.getElementById("btn1").classList.remove("active");
     document.getElementById("btn2").classList.remove("active");
     document.getElementById("btn3").classList.add("active");
-    setSaleType("onlybids");
+    setSaleType("none");
+    setOnSale(false);
+    setInstantSale(false);
+    setOnAuction(false);
   };
 
   const unlockClick = () => {
@@ -673,11 +682,72 @@ export default function CreatePage() {
                   </div>
 
                   <div className="spacer-single"></div>
+                  <h5>
+                    Title <span style={{ color: "red" }}>*</span>{" "}
+                  </h5>
+                  <input
+                    type="text"
+                    name="item_title"
+                    id="item_title"
+                    className="form-control"
+                    placeholder="e.g. 'Crypto Funk"
+                    onChange={(e) => setNftName(e.target.value)}
+                  />
 
-                  <h5>Select method</h5>
+                  <h5>
+                    Description <span style={{ color: "red" }}>*</span>
+                  </h5>
+                  <textarea
+                    data-autoresize
+                    name="item_desc"
+                    id="item_desc"
+                    className="form-control"
+                    placeholder="e.g. 'This is very limited item'"
+                    onChange={(e) => setDescription(e.target.value)}
+                  ></textarea>
+                  <h5 style={{ marginTop: "32px" }}>
+                    NFT Type <span style={{ color: "red" }}>*</span>
+                  </h5>
+                  <select
+                    className=""
+                    style={{
+                      width: "100%",
+                      padding: "8px",
+                      border: "1px solid #CCCCCC",
+                      borderRadius: "6px",
+                      marginBottom: "32px",
+                      color: "black",
+                    }}
+                    onChange={(e) => setNftType(e.target.value)}
+                  >
+                    <option>Select</option>
+                    <option value="art">Art</option>
+                    <option value="music">Music</option>
+                  </select>
+
+                  <div className="spacer-10"></div>
+
+                  <h5>Royalties</h5>
+                  <input
+                    type="number"
+                    name="item_royalties"
+                    id="item_royalties"
+                    className="form-control"
+                    placeholder="Suggested: 0, 10%, 20%, 30%. Maximum is 50%"
+                    onChange={(e) => setRoyalty(e.target.value)}
+                  />
+
+                  <div className="spacer-single"></div>
+
+                  <h5>Sell Type</h5>
                   <div className="de_tab tab_methods">
                     <ul className="de_nav">
-                      <li id="btn1" className="active" onClick={handleShow}>
+                      <li id="btn3" className="active" onClick={handleShow2}>
+                        <span>
+                          <i className="fa fa-ban"></i>None
+                        </span>
+                      </li>
+                      <li id="btn1" onClick={handleShow}>
                         <span>
                           <i className="fa fa-tag"></i>Fixed price
                         </span>
@@ -687,16 +757,11 @@ export default function CreatePage() {
                           <i className="fa fa-hourglass-1"></i>Timed auction
                         </span>
                       </li>
-                      <li id="btn3" onClick={handleShow2}>
-                        <span>
-                          <i className="fa fa-users"></i>Open for bids
-                        </span>
-                      </li>
                     </ul>
                   </div>
 
                   <div className="spacer-20"></div>
-
+                  {/* 
                   {saleType === "fixed" ? (
                     <div className="switch-with-title">
                       <h5>
@@ -729,9 +794,9 @@ export default function CreatePage() {
                     </div>
                   ) : (
                     ""
-                  )}
+                  )} */}
 
-                  {saleType === "fixed" ? (
+                  {/* {saleType === "fixed" ? (
                     <div className="switch-with-title">
                       <h5>
                         <i className="fa fa- fa-unlock-alt id-color-2 mr10"></i>
@@ -756,19 +821,26 @@ export default function CreatePage() {
                     </div>
                   ) : (
                     ""
-                  )}
+                  )} */}
 
                   <div className="de_tab_content pt-3">
                     <div id="tab_opt_1">
-                      <h5>Price</h5>
-                      <input
-                        type="number"
-                        name="item_price"
-                        id="item_price"
-                        className="form-control"
-                        placeholder="enter price (MATIC)"
-                        onChange={(e) => setIntialPrice(e.target.value)}
-                      />
+                      {saleType === "none" ? (
+                        ""
+                      ) : (
+                        <>
+                          {" "}
+                          <h5>Price</h5>
+                          <input
+                            type="number"
+                            name="item_price"
+                            id="item_price"
+                            className="form-control"
+                            placeholder="Enter price (MATIC)"
+                            onChange={(e) => setIntialPrice(e.target.value)}
+                          />
+                        </>
+                      )}
                     </div>
 
                     <div id="tab_opt_2" className="hide">
@@ -809,51 +881,6 @@ export default function CreatePage() {
                     <div id="tab_opt_3"></div>
                   </div>
 
-                  <h5>
-                    Title <span style={{ color: "red" }}>*</span>{" "}
-                  </h5>
-                  <input
-                    type="text"
-                    name="item_title"
-                    id="item_title"
-                    className="form-control"
-                    placeholder="e.g. 'Crypto Funk"
-                    onChange={(e) => setNftName(e.target.value)}
-                  />
-                  <h5 style={{ marginTop: "32px" }}>
-                    Nft Type <span style={{ color: "red" }}>*</span>
-                  </h5>
-                  <select
-                    className=""
-                    style={{
-                      width: "100%",
-                      padding: "8px",
-                      border: "1px solid #CCCCCC",
-                      borderRadius: "6px",
-                      marginBottom: "32px",
-                      color: "black",
-                    }}
-                    onChange={(e) => setNftType(e.target.value)}
-                  >
-                    <option>Select</option>
-                    <option value="art">Art</option>
-                    <option value="music">Music</option>
-                  </select>
-
-                  <div className="spacer-10"></div>
-
-                  <h5>
-                    Description <span style={{ color: "red" }}>*</span>
-                  </h5>
-                  <textarea
-                    data-autoresize
-                    name="item_desc"
-                    id="item_desc"
-                    className="form-control"
-                    placeholder="e.g. 'This is very limited item'"
-                    onChange={(e) => setDescription(e.target.value)}
-                  ></textarea>
-
                   {/* <div className="spacer-10"></div> */}
 
                   {/* <h5>Price</h5>
@@ -867,21 +894,25 @@ export default function CreatePage() {
 
                   <div className="spacer-10"></div>
 
-                  <h5>Royalties</h5>
-                  <input
-                    type="number"
-                    name="item_royalties"
-                    id="item_royalties"
-                    className="form-control"
-                    placeholder="suggested: 0, 10%, 20%, 30%. Maximum is 50%"
-                    onChange={(e) => setRoyalty(e.target.value)}
-                  />
-
-                  <div className="spacer-10"></div>
-
-                  <button className="btn-main" onClick={() => createNft()}>
-                    Mint Nft
-                  </button>
+                  <div className="d-flex">
+                    <button
+                      className=""
+                      onClick={() => createNft()}
+                      style={{
+                        backgroundColor: "black",
+                        marginRight: "16px",
+                        color: "white",
+                        fontWeight: "bold",
+                        width: "140px",
+                        borderRadius: "8px",
+                      }}
+                    >
+                      Cancel
+                    </button>
+                    <button className="btn-main" onClick={() => createNft()}>
+                      Mint NFT
+                    </button>
+                  </div>
                 </div>
               </div>
 

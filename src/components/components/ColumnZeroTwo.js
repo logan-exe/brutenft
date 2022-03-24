@@ -17,6 +17,18 @@ const Outer = styled.div`
 const ColumnZeroTwo = (props) => {
   const [nfts, setNfts] = useState();
   const [loading, setLoading] = useState(true);
+  const [imageHeight, setImageHeight] = useState(0);
+
+  const onImgLoad = ({ target: img }) => {
+    let currentHeight = imageHeight;
+    if (currentHeight < img.offsetHeight) {
+      // this.setState({
+      //     height: img.offsetHeight
+      // })
+
+      setImageHeight(img.offsetHeight);
+    }
+  };
   useEffect(() => {
     axios({
       url: baseURL + "/get_owned_nfts",
@@ -55,7 +67,10 @@ const ColumnZeroTwo = (props) => {
                 key={index}
                 className="d-item col-lg-3 col-md-6 col-sm-6 col-xs-12"
               >
-                <div className="nft__item">
+                <div
+                  className="nft__item"
+                  style={{ marginRight: "0px", marginLeft: "0px" }}
+                >
                   {/* <div className="de_countdown">
                   <Clock deadline={nft.deadline} />
                 </div> */}
@@ -74,7 +89,17 @@ const ColumnZeroTwo = (props) => {
                     </span>
                   </div>
 
-                  <div className="nft__item_wrap" style={{ height: "300px" }}>
+                  <div
+                    className="nft__item_wrap"
+                    style={{ height: `${imageHeight}px`, cursor: "pointer" }}
+                    onLoad={onImgLoad}
+                    onClick={() =>
+                      window.open(
+                        `/nft/${nft.contract_address}/${nft.token_id}`,
+                        "_self"
+                      )
+                    }
+                  >
                     <Outer>
                       <span
                         onClick={() =>
@@ -105,7 +130,7 @@ const ColumnZeroTwo = (props) => {
                       <h4>{nft.title}</h4>
                     </span>
                     <div className="nft__item_price">
-                      {nft.initial_price}
+                      {nft.initial_price + " MATIC"}
                       {/* <span>{nft.bid}</span> */}
                     </div>
                     <div className="nft__item_action">

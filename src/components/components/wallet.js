@@ -9,11 +9,18 @@ import LoaderModal from "./LoaderModal";
 import { useSelector, useDispatch } from "react-redux";
 import { setAddress } from "../../actions";
 import { ethers } from "ethers";
+import WalletConnectProvider from "@walletconnect/web3-provider";
 
 const Wallet = () => {
   const [loading, setLoading] = useState(false);
   const [modalShow, setModalShow] = useState(false);
   const dispatch = useDispatch();
+
+  const WCProvider = new WalletConnectProvider({
+    rpc: {
+      8001: "https://speedy-nodes-nyc.moralis.io/58179be7c4a9b63cf4bac6a5/bsc/testnet",
+    },
+  });
 
   const logout = async () => {
     setLoading(true);

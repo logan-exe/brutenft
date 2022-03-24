@@ -20,6 +20,13 @@
     width: 150%;
   }
 }
+
+.user-history-table {
+  height: 200px;
+  overflow-y: scroll;
+  /* background: #727272; */
+}
+
 .owner_display_ {
   margin-right: 16px;
 }
@@ -297,3 +304,10 @@
   font-weight: bold;
   border-radius: 4px;
 }
+
+/* .tableFixHead table {
+  height: 300px;
+  width: 100%;
+  overflow: auto;
+  background-color: #727272;
+} */

@@ -32,8 +32,11 @@ const ColumnZeroThree = (props) => {
       .then((res) => {
         if (res.data.message === "success") {
           console.log(res.data, "haha");
-          setFrom(res.data.from);
-          setTo(res.data.to);
+          const nftData = res.data.from;
+          nftData.push(...res.data.to);
+          nftData.reverse();
+          setFrom(nftData);
+          // setTo(res.data.to);
           setLoading(false);
         }
       })
@@ -54,41 +57,52 @@ const ColumnZeroThree = (props) => {
       ) : (
         <>
           {" "}
-          <select style={{ height: "40px" }}>
+          <select
+            style={{
+              height: "40px",
+              borderColor: "lightgray",
+              marginBottom: "16px",
+            }}
+          >
             <option value="0">All Items</option>
             <option value="1">Offers Made</option>
             <option value="3">Offers Recieved</option>
             <option value="4">Minted</option>
             <option value="5">Transfer</option>
           </select>
-          <Table striped bordered hover>
-            <thead>
-              <tr>
-                <th>Event</th>
-                <th>Price</th>
-                <th>From</th>
-                <th>To</th>
-                <th>Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {from?.map((act, index) => {
-                return (
-                  <tr key={index}>
-                    <td>{act.tx_type}</td>
-                    <td>{act.price}</td>
-                    <td>
-                      {act.tx_type === "Minting Token"
-                        ? act.contract_address
-                        : act.from}
-                    </td>
-                    <td>{act.to}</td>
-                    <td>{act.date.slice(0, 16)}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </Table>
+          <div style={{ height: "300px", overflow: "scroll" }}>
+            <table className="history-table">
+              <thead>
+                <tr>
+                  <th>Event</th>
+                  <th>Price</th>
+                  <th>From</th>
+                  <th>To</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+
+              <tbody style={{ height: "300px", overflow: "auto" }}>
+                {from?.map((act, index) => {
+                  return (
+                    <tr key={index}>
+                      <td>{act.tx_type}</td>
+                      <td>
+                        {act.amount !== "nil" ? act.amount + " MATIC" : "-"}
+                      </td>
+                      <td>
+                        {act.tx_type === "Minting Token"
+                          ? act.contract_address
+                          : act.from}
+                      </td>
+                      <td>{act.to}</td>
+                      <td>{act.date.slice(0, 16)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </>
       )}
     </div>

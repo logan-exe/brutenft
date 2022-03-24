@@ -570,7 +570,7 @@ const Profile = function () {
                       <span onClick={handleBtnClick}>Created</span>
                     </li>
                     <li id="Mainbtn1" className="">
-                      <span onClick={handleBtnClick1}>Collected</span>
+                      <span onClick={handleBtnClick1}>Owned</span>
                     </li>
                     <li id="Mainbtn2" className="">
                       <span onClick={handleBtnClick2}>History</span>
